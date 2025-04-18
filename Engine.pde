@@ -1,5 +1,6 @@
 class Engine {
   Module module;
+  ArrayList<PAudio> sfx=new ArrayList<PAudio>();
   ArrayDeque<IfBlock> ifs=new ArrayDeque<IfBlock>();
   ArrayDeque<Block> loops=new ArrayDeque<Block>();
   Engine() {
@@ -18,6 +19,9 @@ class Engine {
     }
   }*/
   void step() {
+    for (PAudio i:sfx)
+      i.stop();
+    sfx.clear();
     println("Step! Pos "+module.pos+1+" at",module.name);
     for (;;module.pos++) {
       int pos=module.pos;
@@ -83,8 +87,14 @@ class Engine {
         String name=preprocess(tokens[2]);
         if (tokens[1].equals("play")) {
           if (!audio.containsKey(name))
-            audio.put(name,new PAudio(name));
+            audio.put(name,new PAudio(name,
+              tokens.length>3&&!tokens[3].equals("once")));
           audio.get(name).start();
+        } else if (tokens[1].equals("fx")) {
+          println(name);
+          PAudio fx=new PAudio(name,false);
+          fx.start();
+          sfx.add(fx);
         } else if (tokens[1].equals("stop")) {
           audio.get(name).stop();
           audio.remove(name);
@@ -120,7 +130,10 @@ class Engine {
         if (module.exprs.get(pos).eval()==0)
           module.pos=blk.end;
       } else if (fn.equals("game")) {
+        //module.pos++;
         choose_minigame(tokens);
+       println(state);
+        break;
       } else if (fn.equals("choice")&&!tokens[1].startsWith("=")) {
         line=join(tokens," ").substring(7);
         String[] ch=preprocess(line).split(";");

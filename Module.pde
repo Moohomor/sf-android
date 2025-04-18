@@ -15,7 +15,8 @@ class Module {
       loops=new ArrayDeque<Integer>();
     for (int i=0;i<rows.length;i++) {
       String trimmed=rows[i].trim();
-      if (!(trimmed.startsWith("if")||
+      if (!(trimmed.startsWith("#")||
+            trimmed.startsWith("if")||
             trimmed.startsWith("endif")||
             trimmed.startsWith("else")||
             trimmed.contains("=")||
@@ -26,17 +27,21 @@ class Module {
       String[] tokens=trimmed.split(" ");
       if (tokens[0].trim().equals("bg")) {
         String name=join(tokens,' ').substring(3);
-        //if (new File(dataPath(name)).exists())
-        if (!isDigit(name)&&!name.startsWith("#"))
-          imdata.put(name,loadImage(name));
-        //else
-          continue;
+        errOff();
+        PImage im=loadImage(name);
+        errOn();
+        if (im!=null&&!isDigit(name)&&!name.startsWith("#"))
+          imdata.put(name,im);
+        continue;
       } else if (tokens[0].trim().equals("toast")) {
         String[] args=trimmed.substring(6).split(";");
         if (args.length>2) {
           String name=args[2].trim();
-          //if (new File(dataPath(name)).exists())
-            imdata.put(name,loadImage(name));
+          errOff();
+          PImage im=loadImage(name);
+          errOn();
+          if (im!=null)
+            imdata.put(name,im);
         }
         continue;
       } else if (tokens[0].trim().equals("char")) {
@@ -44,26 +49,29 @@ class Module {
           continue;
         println(tokens);
         String name=tokens[2].trim();
-        if (new File(dataPath(name)).exists())
-          imdata.put(name,loadImage(name));
+        errOff();
+        PImage im=loadImage(name);
+        errOn();
+        if (im!=null)
+          imdata.put(name,im);
         continue;
       }
-      if (tokens[0].contains("endif")) {
+      if (tokens[0].startsWith("endif")) {
         ifcnt--;
         if (ifcnt<0) throw new SyntaxError("Too many 'endif' tokens");
         int st=ifs.pollLast();
         blocks.put(st,new IfBlock(st,elses.size()==ifs.size()+1?elses.pollLast():-1,i));
-      } else if (tokens[0].contains("if")) {
+      } else if (tokens[0].equals("if")) {
         ifs.add(i);
         ifcnt++;
-      } else if (tokens[0].contains("else")) {
+      } else if (tokens[0].equals("else")) {
         elses.add(i);
-      } else if (tokens[0].contains("endloop")) {
+      } else if (tokens[0].equals("endloop")) {
         loopcnt--;
         if (loopcnt<0) throw new SyntaxError("Too many 'endloop' tokens");
         int st=loops.pollLast();
         blocks.put(st,new Block(st,i));
-      } else if (tokens[0].contains("loop")) {
+      } else if (tokens[0].equals("loop")) {
         loops.add(i);
         loopcnt++;
       }

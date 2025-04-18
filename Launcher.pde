@@ -2,6 +2,8 @@ import java.util.ArrayDeque;
 import java.util.Map;
 import java.util.HashSet;
 import java.util.Arrays;
+import java.io.PrintStream;
+import java.io.OutputStream;
 Engine engine;
 Screen screen;
 State state;
@@ -40,7 +42,7 @@ void setup() {
   nvars.put("choice",-1.);
   for (String i: NECESSARY_IMAGES)
     imdata.put(i,loadImage(i));
-  println(imdata);
+  //println(imdata);
   loadAchievements();
   for (String i:loadStrings("achievements.csv")) {
     String name=i.split(";")[3].trim();
@@ -49,7 +51,10 @@ void setup() {
   screen=new Menu();
   dfsMods("main");
   println(mods);
+  println(imdata);
   prev=createImage(width,height,RGB);
+  if (!hasPermission("android.permission.READ_EXTERNAL_STORAGE")) 
+    requestPermission("android.permission.READ_EXTERNAL_STORAGE");
 }
 
 void draw() {
@@ -62,6 +67,9 @@ void draw() {
   }
   while (toasts.contains(null))
     toasts.remove(null);
+  while (audio.containsKey(null))
+    audio.remove(null);
+  
   if (millis()-prevtap<TRANSITION_DURATION) {
     tint(255,255*50/(millis()-prevtap));
     image(prev,0,0);

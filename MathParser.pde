@@ -9,13 +9,12 @@ class MathExpression {
     String nb="", lb="";
     String prev="";
     for (char c:expression.toCharArray()) {
-      if (Character.isDigit(c)||c=='.') nb+=c;
-      else if (Character.isAlphabetic(c)||c=='"'||c=='"') {
+      if (Character.isDigit(c)||c=='.'&&isDigit(prev)) nb+=c;
+      else if (Character.isAlphabetic(c)||c=='"'||c=='"'||c=='.') {
         if (prev.equals("-"))
           tokens.add("_");
         lb+=c;
       }
-      //else if ((c+"").matches("\\+|-|\\*|\\/")) {
       switch (c) {
         case '+':
         case '-':
@@ -63,6 +62,7 @@ class MathExpression {
         nb="";lb="";
         tokens.add(",");
       }
+      prev=c+"";
     }
     if (!nb.equals(""))
       tokens.add(nb);

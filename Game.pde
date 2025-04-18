@@ -11,6 +11,8 @@ class Game extends Screen {
     else
       background(bgc);
     state.upd();
+    for (PAudio i:audio.values())
+      i.upd();
     super.upd();
   }
   void mPressed() {

@@ -49,6 +49,16 @@ class SafeMap<K,V> extends HashMap<K,V> {
     return null;
   }
 }
+PrintStream ps_err=System.err;
+void errOff() {
+  ps_err=System.err;
+  System.setErr(new PrintStream(new OutputStream() {
+    public void write(int b) {}
+  }));
+}
+void errOn() {
+  System.setErr(ps_err);
+}
 void setst(Screen st) {screen=new MiddleScreen(st,200);}
 class MiddleScreen extends Screen  {
   Screen s2;
